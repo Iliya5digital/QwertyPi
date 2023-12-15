@@ -1,0 +1,38 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const int N = 3e4 + 11; 
+bool vis[N], in_stack[N];
+vector<int> G[N];
+vector<int> ans;
+void dfs(int v, int pa = -1){
+	in_stack[v] = true; vis[v] = true;
+	for(auto i : G[v]){
+		if(!vis[i]){
+			dfs(i, v);
+		}
+	}
+	in_stack[v] = false;
+	ans.push_back(v);
+}
+
+int32_t main(){
+	int n, m; cin >> n >> m;
+	set<pair<int, int>> S;
+	for(int i = 0; i < m; i++){
+		int u, v; cin >> u >> v;
+		G[u].push_back(v);
+		S.insert({u, v});
+	}
+	for(int i = 1; i <= n; i++){
+		if(!vis[i]) dfs(i);
+	}
+	for(int i = 0; i < n - 1; i++){
+		if(S.count({ans[i], ans[i + 1]})){
+			cout << -1 << endl;
+			return 0;
+		}
+	}
+	for(auto i : ans) cout << i << ' '; cout << endl;
+}
