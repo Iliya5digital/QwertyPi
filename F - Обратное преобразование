@@ -1,0 +1,96 @@
+#include <bits/stdc++.h>
+ 
+#define int long long
+using namespace std;
+ 
+// Thanks god
+ 
+// My functional equation skills come to use finally
+ 
+int pm(int a, int b, int l){
+    if(b == 0) return 1;
+    return pm(a * a % l, b / 2, l) * (b % 2 ? a : 1) % l;
+}
+ 
+int a[200001];
+bool u[200001];
+int rans[200001];
+vector<vector<int>> b[200001];
+vector<vector<int>> ans;
+void solve(){
+    ans.clear();
+    int n, k; cin >> n >> k;
+    for(int i = 1; i <= n; i++) b[i].clear();
+    fill(u + 1, u + n + 1, false);
+    fill(rans, rans + n + 1, false);
+    for(int i = 1; i <= n; i++){
+        cin >> a[i];
+    }
+    ans.clear();
+    for(int i = 1; i <= n; i++){
+        if(!u[i]){
+            vector<int> v; v.push_back(i); u[i] = true;
+            int x = a[i];
+            while(x != i) u[x] = true, v.push_back(x), x = a[x];
+            b[v.size()].push_back(v);
+        }
+    }
+    for(int l = 1; l <= n; l++){
+        if(l % 2 == 1){
+            int j = 0;
+            for(int bit = min(k, 20LL); bit >= 0; bit--){
+                while(j + (1 << bit) <= b[l].size()){
+                    // cout << "ODD " << j << ", SIZE = " << (1 << bit) << ", LENGTH = " << l << endl;
+                    vector<int> v;
+                    vector<int> p; for(int i = 0; i < l; i++) p.push_back((pm(2, k - bit, l) * (i + 1)) % l);
+                    vector<int> pi(l); for(int i = 0; i < l; i++) pi[p[i]] = i;
+                    for(int y = 0; y < l; y++){
+                        for(int x = j; x < j + (1 << bit); x++){
+                            v.push_back(b[l][x][pi[y]]);
+                        }
+                    }
+                    ans.push_back(v);
+                    j += (1 << bit);
+                }
+            }
+        }else{
+            int bit = min(k, 20LL);
+            if(b[l].size() % (1 << bit) != 0){
+                cout << "NO" << endl;
+                return;
+            }
+            for(int i = 0; i < b[l].size(); i += (1 << bit)){
+                // cout << "EVEN " << i << ", LENGTH = " << l << endl;
+                vector<int> v;
+                for(int y = 0; y < l; y++){
+                    for(int x = i; x < i + (1 << bit); x++){
+                        v.push_back(b[l][x][y]);
+                    }
+                }
+                ans.push_back(v);
+            }
+        }
+    }
+    /*
+    cout << "<<<<<<<<<<<" << endl;
+    for(auto v : ans){
+        for(auto i : v) cout << i << ' '; cout << '\n';
+    }
+    cout << ">>>>>>>>>>>" << endl;
+    */
+    for(auto v : ans){
+        for(int i = 0; i < v.size(); i++) rans[v[i]] = v[(i + 1) % v.size()];
+    }
+    cout << "YES" << endl;
+    for(int i = 1; i <= n; i++){
+        cout << rans[i] << ' ';
+    }
+    cout << '\n';
+}
+ 
+int32_t main(){
+    int t; cin >> t;
+    while(t--){
+        solve();
+    }
+}
