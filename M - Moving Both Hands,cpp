@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+#define int long long
+
+using namespace std;
+
+const int N_MAX = 1e5 + 11;
+vector<pair<int, int>> G[N_MAX], H[N_MAX];
+
+int dp[2][N_MAX];
+bool vis[2][N_MAX];
+
+template<class T>
+using min_priority_queue = priority_queue<T, vector<T>, greater<T>>;
+
+int32_t main(){
+    cin.tie(0); cout.tie(0)->sync_with_stdio(false);
+    int n, m; cin >> n >> m;
+    for(int i = 0; i < m; i++){
+        int u, v, w; cin >> u >> v >> w;
+        G[u].push_back({v, w});
+        H[v].push_back({u, w});
+    }
+
+    memset(dp, 0x3f, sizeof(dp));
+
+    min_priority_queue<pair<int, int>> pq;
+
+    pq.push({0, 1}); dp[0][1] = 0;
+    while(!pq.empty()){
+        auto [d, v] = pq.top(); pq.pop();
+        if(vis[0][v]) continue; vis[0][v] = true;
+        for(auto [u, w] : G[v]){
+            int nd = d + w;
+            if(nd < dp[0][u]){
+                dp[0][u] = nd;
+                pq.push({nd, u});
+            }
+        }
+    }
+
+    for(int i = 1; i <= n; i++) pq.push({dp[0][i], i}), dp[1][i] = dp[0][i];
+    while(!pq.empty()){
+        auto [d, v] = pq.top(); pq.pop();
+        if(vis[1][v]) continue; vis[1][v] = true;
+        for(auto [u, w] : H[v]){
+            int nd = d + w;
+            if(nd < dp[1][u]){
+                dp[1][u] = nd;
+                pq.push({nd, u});
+            }
+        }
+    }
+
+    for(int i = 2; i <= n; i++) cout << (dp[1][i] == 0x3f3f3f3f3f3f3f3fLL ? -1 : dp[1][i]) << " \n"[i == n];
+}
